@@ -1,0 +1,102 @@
+---
+title: "Summary Statistics & Data Visualization"
+author: "John Walker (derivative work)"
+date: "September 6, 2016"
+output: html_document
+geometry: margin=0.5in 
+
+---
+
+```{r setup, include=FALSE}
+require(knitr)
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Data visualization example using the Anscombe dataset
+Humans are good at understanding patterns, given some assistance. Statistics that summarize a data set can hide differences.
+[Francis Anscombe](https://en.wikipedia.org/wiki/Frank_Anscombe), an English statistician, designed a dataset to illustrate how data visualization helps people see how different 
+data can be when summary statistics match. 
+
+For R programming the Anscombe data is included in the base `datasets` package. Looking at the data the differences
+in the 4 sets is not easy to detect.
+```{r libs, warning=FALSE, message=FALSE, echo=FALSE}
+require(ggplot2) ; require(dplyr) ; require(reshape2); require(xtable); require(kable); require(plotly)
+```
+```{r data, echo=FALSE}
+anscombe
+```
+
+To make the subsets more manageable, we can create separate rows for each set, add a column to identify the set and combine the rows. 
+A few sample rows are printed to show the data structure:
+```{r subsets, echo=FALSE}
+set11 <- select(anscombe, x=x1,y=y1)
+set22 <- select(anscombe, x=x2,y=y2)
+set33 <- select(anscombe, x=x3,y=y3)
+set44 <- select(anscombe, x=x4,y=y4)
+set11$group  <- 'x1_y1'
+set22$group  <- 'x2_y2'
+set33$group  <- 'x3_y3'
+set44$group  <- 'x4_y4'
+allSets <- rbind(set11, set22, set33, set44)
+kable(allSets[c(1,12,23,34), ], align = "c")
+```
+
+Summary statistics match for each of the subsets: mean, variance and the correlation between x and y
+```{r summary_stats, , echo=FALSE} 
+stats <- allSets %>%
+    group_by(group)%>%
+    summarize("Mean x"=mean(x),
+              "Sample variance x"=var(x),
+              "Mean y"=round(mean(y),2),
+              "Sample variance y"=round(var(y),1),
+              "Correlation between x and y "=round(cor(x,y),2)
+        )
+kable(stats, align = "c")
+```
+
+The similarity at a summary level goes even further. 
+If we fit a linear model in the subsets the regression line is the same for each:
+```{r lm, warning=FALSE, echo=FALSE}
+models = allSets %>% 
+      group_by(group) %>%
+      do(mod = lm(y ~ x, data = .)) %>%
+      do(data.frame(var = names(coef(.$mod)),
+                    coef = round(coef(.$mod),2),
+                    group = .$group)) %>%
+      dcast(., group~var, value.var = "coef")
+
+lm_fit <-  data_frame("Linear regression"=paste0("y = ",models$"(Intercept)"," + ",models$x,"x"))
+sets <- c('x1_y1', 'x2_y2', 'x3_y3', 'x4_y4')
+lm_fit <- cbind("Data set"=sets, lm_fit)
+
+kable(lm_fit)
+```
+
+but when we look at the data points it's immediately clear each subset has a substantially different pattern!  
+(the blue line is the linear regression)
+```{r plot, echo=FALSE}
+p <- ggplot(allSets, aes(x=x,y=y)) +
+    geom_point(shape = 21, colour = "red", fill = "yellow") +
+    ggtitle("Visualizing Anscombe data") +
+    geom_smooth(method = "lm",se = FALSE,color='blue') + 
+    facet_wrap(~group) +
+    theme_bw()
+(gg <- ggplotly(p))
+```
+
+##Summary
+
+Clearly the Anscombe data is cleverly designed to make a point about variation that can hide in summary stats. 
+It's important to *look* at the data as part of data analysis.
+
+The example worked here is highly derivative. 
+The calculations have been prepared and charts produced by many people since Anscombe published his work 
+
+```{r html_tables, echo=FALSE, results='hide'}
+#code to produce html structures for blog
+hanscombe <- xtable(anscombe)
+hallsets  <- xtable(allSets[c(1,12,23,34), ])
+hstats    <- xtable(stats)
+hlmfit    <- xtable(lm_fit)
+
+```
