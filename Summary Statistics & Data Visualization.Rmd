@@ -1,6 +1,6 @@
 ---
-title: "Summary Statistics & Data Visualization"
-author: "John Walker (derivative work)"
+title: "Don't be fooled by summary statistics"
+author: "John Walker (derivative work from Francis Anscombe)"
 date: "September 6, 2016"
 output: html_document
 geometry: margin=0.5in 
@@ -12,15 +12,15 @@ require(knitr)
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-## Data visualization example using the Anscombe dataset
+## Example of the power of data visualizeion using the Anscombe dataset 
 Humans are good at understanding patterns, given some assistance. Statistics that summarize a data set can hide differences.
-[Francis Anscombe](https://en.wikipedia.org/wiki/Frank_Anscombe), an English statistician, designed a dataset to illustrate how data visualization helps people see how different 
-data can be when summary statistics match. 
+[Francis Anscombe](https://en.wikipedia.org/wiki/Frank_Anscombe), an English statistician, designed a data set to illustrate how 
+data visualization helps people see how different data can be when summary statistics match. 
 
-For R programming the Anscombe data is included in the base `datasets` package. Looking at the data the differences
-in the 4 sets is not easy to detect.
+For R programming the Anscombe data is included in the base `datasets` package. 
+Looking at the data the differences in the 4 sets is not easy to detect.
 ```{r libs, warning=FALSE, message=FALSE, echo=FALSE}
-require(ggplot2) ; require(dplyr) ; require(reshape2); require(xtable); require(kable); require(plotly)
+require(ggplot2) ; require(dplyr) ; require(reshape2); require(xtable); require(plotly)
 ```
 ```{r data, echo=FALSE}
 anscombe
@@ -90,7 +90,8 @@ Clearly the Anscombe data is cleverly designed to make a point about variation t
 It's important to *look* at the data as part of data analysis.
 
 The example worked here is highly derivative. 
-The calculations have been prepared and charts produced by many people since Anscombe published his work 
+The calculations have been prepared and charts produced by many people since Anscombe published his work.
+Code is on [Github](https://github.com/jrwalker-projects/Anscombe)
 
 ```{r html_tables, echo=FALSE, results='hide'}
 #code to produce html structures for blog
